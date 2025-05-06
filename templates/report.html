@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Inventory Report</h1>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Location</th>
+                {% for product_name in product_names %}
+                    <th>{{ product_name }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for location_name, stock in report_data.items() %}
+                <tr>
+                    <td>{{ location_name }}</td>
+                    {% for product_name in product_names %}
+                        <td>{{ stock.get(product_name, 0) }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

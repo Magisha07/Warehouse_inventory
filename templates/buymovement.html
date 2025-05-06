@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Buy Movement</h2>
+<form method="POST">
+    <div class="mb-3">
+        <label class="form-label">Product</label>
+        <select class="form-select" name="product_id" required>
+            {% for product in products %}
+                <option value="{{ product.product_id }}">{{ product.product_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">To Location</label>
+        <select class="form-select" name="to_location" required>
+            {% for location in locations %}
+                <option value="{{ location.location_id }}">{{ location.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Quantity</label>
+        <input type="number" class="form-control" name="qty" required>
+    </div>
+    <input type="hidden" name="movement_type" value="buy">
+    <button type="submit" class="btn btn-success">Record Purchase</button>
+    <a href="{{ url_for('list_movements') }}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

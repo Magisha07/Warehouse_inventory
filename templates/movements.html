@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>All Movements</h2>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#movementModal">Add Movement</button>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>Product</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Quantity</th>
+            <th>Timestamp</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for transfer in transfers %}
+        <tr>
+            <td>Transfer</td>
+            <td>{{ transfer.product.product_name }}</td>
+            <td>{{ transfer.from_loc.name }}</td>
+            <td>{{ transfer.to_loc.name }}</td>
+            <td>{{ transfer.movement_qty }}</td>
+            <td>{{ transfer.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>
+                <form action="{{ url_for('delete_movement', movement_type='transfer', movement_id=transfer.id) }}" method="POST">
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        
+        {% for buy in buys %}
+        <tr>
+            <td>Purchase</td>
+            <td>{{ buy.product.product_name }}</td>
+            <td>Supplier</td>
+            <td>{{ buy.location.name if buy.location else '-' }}</td>
+            <td>{{ buy.movement_qty }}</td>
+            <td>{{ buy.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>
+                <form action="{{ url_for('delete_movement', movement_type='buy', movement_id=buy.movement_id) }}" method="POST">
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        
+        {% for sale in sales %}
+        <tr>
+            <td>Sale</td>
+            <td>{{ sale.product.product_name }}</td>
+            <td>{{ sale.location.name if sale.location else '-' }}</td>
+            <td>Customer</td>
+            <td>{{ sale.movement_qty }}</td>
+            <td>{{ sale.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>
+                <form action="{{ url_for('delete_movement', movement_type='sale', movement_id=sale.movement_id) }}" method="POST">
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Movement Modal -->
+<div class="modal fade" id="movementModal" tabindex="-1" aria-labelledby="movementModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="movementModalLabel">Add Movement</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('add_movement') }}">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Movement Type</label>
+                        <select class="form-select" name="movement_type" id="movement_type" required>
+                            <option value="buy">Purchase</option>
+                            <option value="sale">Sale</option>
+                            <option value="transfer">Transfer</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Product</label>
+                        <select class="form-select" name="product_id" required>
+                            {% for product in products %}
+                                <option value="{{ product.product_id }}">{{ product.product_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3" id="from_location_div">
+                        <label class="form-label">From Location</label>
+                        <select class="form-select" name="from_location">
+                            {% for location in locations %}
+                                <option value="{{ location.location_id }}">{{ location.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3" id="to_location_div">
+                        <label class="form-label">To Location</label>
+                        <select class="form-select" name="to_location">
+                            {% for location in locations %}
+                                <option value="{{ location.location_id }}">{{ location.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Quantity</label>
+                        <input type="number" class="form-control" name="qty" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Movement</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('movement_type').addEventListener('change', function() {
+    const movementType = this.value;
+    const fromDiv = document.getElementById('from_location_div');
+    const toDiv = document.getElementById('to_location_div');
+    
+    if (movementType === 'buy') {
+        fromDiv.style.display = 'none';
+        toDiv.style.display = 'block';
+    } else if (movementType === 'sale') {
+        fromDiv.style.display = 'block';
+        toDiv.style.display = 'none';
+    } else {
+        fromDiv.style.display = 'block';
+        toDiv.style.display = 'block';
+    }
+});
+</script>
+{% endblock %}
